@@ -1,6 +1,6 @@
 # X-Tent
 ---
-# A general purpose math library for JavaScript ease in coding 
+## A general purpose math library for JavaScript ease in coding 
 
 -**Note:** Please, read the [DOCUMENTATION.md](https://github.com/diepafigranumuse-argyrispournaris/x-tent/blob/main/DOCUMENTATION.md) before implementing and using the library.
 
