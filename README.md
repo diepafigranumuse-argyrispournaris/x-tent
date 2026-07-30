@@ -1,7 +1,7 @@
 # X-Tent
 A general purpose math library for JavaScript ease in coding
 
-## How to implement in your code
+## How to implement X-Tent.js in your code
 1. Download the X-Tent.js file in your device.
 2. For simplicity, move it to the root directory folder where your app's HTML or XML file exists.
 3. Simply add a `<script src="X-Tent.js"></script>` element in your HTML or XML file of your app. Do **NOT** add the type="module" attribute in it. X-Tent.js loads as a default script file.
