@@ -1,7 +1,7 @@
 # X-Tent
 A general purpose math library for JavaScript ease in coding
 
--**Note:** Please, read the (DOCUMENTATION.md) before implementing and using the library.
+-**Note:** Please, read the [DOCUMENTATION.md](https://github.com/diepafigranumuse-argyrispournaris/x-tent/blob/main/DOCUMENTATION.md) before implementing and using the library.
 
 ## How to implement X-Tent.js in your code
 1. Download the X-Tent.js file in your device.
