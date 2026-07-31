@@ -289,8 +289,8 @@ console.log(num.n());        // Output: 5 (Total digits)
 Convert scalars to binary, duodecimal, or hexadecimal formats (`bin()`, `base12()`, `base16()`).
 ```javascript
 const num = 255;
-console.log(num.base16()); // Output: 255 evaluated in base 16 context
-console.log((10).bin());   // Output: 10 evaluated in base 2 context
+console.log(num.base16()); // Output: 'ff' (255 evaluated in base 16 context)
+console.log((10).bin());   // Output: '1010' (10 evaluated in base 2 context)
 ```
 
 #### Trigonometry & Arithmetic
