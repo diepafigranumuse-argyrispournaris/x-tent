@@ -275,7 +275,7 @@ class Vector {
         const arg_len = args.length;
         switch (arg_len) {
             case 0:
-                throw new Error(`In ${this.constructor.name}:norm method, at least one argument is required`);
+                return new Error(`In ${this.constructor.name}:norm method, at least one argument is required`);
             case 1:
                 mag = args[0];
                 return this.scaleX(this.x / mag).scaleY(this.y / mag);
@@ -295,6 +295,14 @@ class Vector {
     }
     get vector() {
         return new Vector(this.x, this.y);
+    }
+
+    get coefs() { return Object.getOwnPropertyNames(this).filter(c => c.search("_") == -1); }
+    get coords() {
+        const coords = {},
+            coefs = this.coefs;
+        if (coefs.length > 0) coefs.forEach(c => coords[c] = this[c]);
+        return coords;
     }
 
     //Physics engine optimized code for derivative
@@ -325,6 +333,9 @@ class Vector {
     get polar() {
         return new Vector.Polar(this.mag, this.theta);
     }
+    get N() {
+        return 2;
+    }
 };
 
 class N_Vector extends Vector {
@@ -332,6 +343,7 @@ class N_Vector extends Vector {
         super(p.x, p.y);
         const coords = p.coords;
         for (let coef in coords) {
+            if (coef == "x" && coef == "y") delete this[coef];
             Object.defineProperty(this, `_i${coef}`, {
                 value: coords[coef],
                 writable: true,
@@ -349,7 +361,7 @@ class N_Vector extends Vector {
     moveBy(...args) {
         const cn = args.length;
         if (cn > this.N) return new Error("Uncaught Type Error: In a N_Vector instance, the provided arguments length cannot be greater than its dimensions.");
-        const coefs = Object.getOwnPropertyNames(this).filter(c => c.search("_") == -1);
+        const coefs = this.coefs;
         for (let i = 0; i < cn; i++) {
             const coef = coefs[i],
                 arg = args[i];
@@ -360,7 +372,7 @@ class N_Vector extends Vector {
     moveTo(...args) {
         const cn = args.length;
         if (cn > this.N) return new Error("Uncaught Type Error: In a N_Vector instance, the provided arguments length cannot be greater than its dimensions.");
-        const coefs = Object.getOwnPropertyNames(this).filter(c => c.search("_") == -1);
+        const coefs = this.coefs;
         for (let i = 0; i < cn; i++) {
             const coef = coefs[i],
                 arg = args[i];
@@ -368,30 +380,125 @@ class N_Vector extends Vector {
         }
         return this;
     }
-    update() { }
-    scaleN() { }
-    scale() { }
-    add() { }
-    sub() { }
-    dot() { }
-    cross() { }
-    norm() { }
+    scaleN(...args) {
+        const cn = args.length;
+        if (cn > this.N) return new Error("Uncaught Type Error: In a N_Vector instance, the provided arguments length cannot be greater than its dimensions.");
+        const coefs = this.coefs;
+        for (let i = 0; i < cn; i++) {
+            const coef = coefs[i],
+                arg = args[i];
+            this[coef] *= arg;
+        }
+        return this;
+    }
+    scale(v = 1) {
+        const N = this.N,
+            coefs = this.coefs;
+        for (let i = 0; i < N; i++) {
+            const coef = coefs[i];
+            this[coef] *= v;
+        }
+        return this;
+    }
+    add(vec = new N_Vector()) {
+        const thisN = this.N,
+            sum = this.copy,
+            coefs = this.coefs;
+        for (let i = 0; i < thisN; i++) {
+            const coef = coefs[i];
+            if (vec[coef]) sum[coef] += vec[coef];
+        }
+        return sum;
+    }
+    sub(vec = new N_Vector()) {
+        const thisN = this.N,
+            sub = this.copy,
+            coefs = this.coefs;
+        for (let i = 0; i < thisN; i++) {
+            const coef = coefs[i];
+            if (vec[coef]) sub[coef] -= vec[coef];
+        }
+        return sub;
+    }
+    dot(vec = new N_Vector()) {
+        const thisN = this.N,
+            dot = 0,
+            coefs = this.coefs;
+        for (let i = 0; i < thisN; i++) {
+            const coef = coefs[i];
+            if (vec[coef]) dot += sub[coef] * vec[coef];
+        }
+        return dot;
+    }
+    cross(vec = new N_Vector()) {
+        const thisCoefs = this.coefs,
+            vecCoefs = vec.coefs,
+            thisCoordsArr = thisCoefs.map(c => c = this[c]),
+            vecCoordsArr = vecCoefs.map(c => c = vec[c]),
+            thisMatrix = new Point(...thisCoordsArr).matrix.filter(e => Array.isArray(e) && e.length == 3),
+            vecMatrix = new Point(...vecCoordsArr).matrix.filter(e => Array.isArray(e) && e.length == 3);
+        return Math.dmt([thisMatrix, vecMatrix]);
+    }
+    norm(...args) {
+        const an = args.length,
+            N = this.N,
+            coefs = this.coefs;
+        let mag;
+        switch (an) {
+            case 0:
+                return new Error(`In ${this.constructor.name}:norm method, at least one argument is required`);
+            case 1:
+                mag = args[0];
+                for (let i = 0; i < N; i++) {
+                    const coef = coefs[i];
+                    this.scale(this[coef] / mag.nzp());
+                }
+                break;
+            default:
+                for (let i = 0; i < an; i++) {
+                    mag = args[i];
+                    const coef = coefs[i];
+                    this.scale(this[coef] / mag.nzp());
+                }
+                break;
+        }
+        return this;
+    }
+    get norm_mag() {
+        return this.norm(this.mag);
+    }
     get copy() {
         const c = new this.constructor();
-        for(let coef in this) c[coef] = this[coef];
+        for (let coef in this) c[coef] = this[coef];
         return c;
     }
+    get coefs() { return Object.getOwnPropertyNames(this).filter(c => c.search("_") == -1); }
     get coords() {
         const coords = {},
-            coefs = Object.getOwnPropertyNames(this).filter(c => c.search("_") == -1);
+            coefs = this.coefs;
         if (coefs.length > 0) coefs.forEach(c => coords[c] = this[c]);
         return coords;
     }
     get N() { return Object.getOwnPropertyNames(this.coords).length; }
-    get norm_mag() { }
-    get mag2() { }
-    get mag() { }
-    get d() { }
+    get mag2() {
+        const N = this.N,
+            coefs = this.coefs;
+        let sum = 0;
+        for (let i = 0; i < N; i++) {
+            const coef = coefs[i],
+                coef2 = this[coef] * this[coef];
+            sum += coef2;
+        }
+        return sum;
+    }
+    get mag() { return Math.sqrt(this.mag2); }
+    get d() {
+        if (this.mag < Math.EPSILON) return new this.constructor(new Point(0));
+        else {
+            const copy = this.copy;
+            return copy.norm_mag;
+        }
+    }
     get dir() { }
     get dirDEG() { }
     get vector2D() { }
