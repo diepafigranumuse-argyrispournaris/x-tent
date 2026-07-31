@@ -8,7 +8,7 @@
 1. Download the [X-Tent.js](https://github.com/diepafigranumuse-argyrispournaris/x-tent/blob/main/X-Tent.js) file in your device.
 2. For simplicity, move it to the root directory folder where your app's HTML or XML file exists.
 3. Simply add a `<script src="X-Tent.js"></script>` element in your HTML or XML file of your app. Do **NOT** add the type="module" attribute in it. **X-Tent.js** loads as a default script file.
-5. (Optional) If you want to access all Math and Number.prorotype methods globally in your app, you can do as follows: In your main.js or index.js (depending on the JS framework you use), or any other main .js file you manually defined as your app's boot file or internal <script>, you add this code in the end, after all HTML or XML content is loaded:
+5. (Optional) If you want to access all `Math` and `Number.prorotype` methods globally in your app, you can do as follows: In your main.js or index.js (depending on the JS framework you use), or any other main .js file you manually defined as your app's boot file or internal <script>, you add this code in the end, after all HTML or XML content is loaded:
 
 ```javascript
 onload = () => {
